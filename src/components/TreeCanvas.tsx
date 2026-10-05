@@ -510,7 +510,7 @@ export default function TreeCanvas() {
         {/* Bottom Navbar */}
         {role !== 'guest' && (
           <Panel position="bottom-center" className="mb-8 sm:mb-6 z-50">
-            <div className="flex items-center gap-4 px-6 py-4 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-slate-200">
+            <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-2.5 sm:py-4 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-slate-200">
               {isLoading ? (
                 <div className="flex items-center gap-2 text-slate-500 text-sm px-4">
                   <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -520,28 +520,28 @@ export default function TreeCanvas() {
                 <>
                   <button
                     onClick={() => { setIsFormOpen(true); setIsEditFormOpen(false); setIsDeleteFormOpen(false); }}
-                    className="p-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-full transition-all active:scale-95 group"
+                    className="p-2 sm:p-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-full transition-all active:scale-95 group"
                     title="Tambah Kerabat"
                   >
-                    <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform" />
+                    <Plus className="w-5 h-5 sm:w-6 sm:h-6 group-hover:rotate-90 transition-transform" />
                   </button>
-                  <div className="w-px h-8 bg-slate-200" />
+                  <div className="w-px h-6 sm:h-8 bg-slate-200" />
                   <button
                     onClick={() => { setIsEditFormOpen(true); setIsFormOpen(false); setIsDeleteFormOpen(false); }}
-                    className="p-3 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-indigo-600 rounded-full transition-all active:scale-95"
+                    className="p-2 sm:p-3 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-indigo-600 rounded-full transition-all active:scale-95"
                     title="Edit Data"
                   >
-                    <Edit2 className="w-6 h-6" />
+                    <Edit2 className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                   {role === 'admin' && (
                     <>
-                      <div className="w-px h-8 bg-slate-200" />
+                      <div className="w-px h-6 sm:h-8 bg-slate-200" />
                       <button
                         onClick={() => { setIsDeleteFormOpen(true); setIsFormOpen(false); setIsEditFormOpen(false); }}
-                        className="p-3 bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-500 rounded-full transition-all active:scale-95"
+                        className="p-2 sm:p-3 bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-500 rounded-full transition-all active:scale-95"
                         title="Hapus Data"
                       >
-                        <Trash2 className="w-6 h-6" />
+                        <Trash2 className="w-5 h-5 sm:w-6 sm:h-6" />
                       </button>
                     </>
                   )}
