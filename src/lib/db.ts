@@ -4,7 +4,7 @@ import { Node, Edge } from '@xyflow/react';
 export type AppNode = Node;
 export type AppEdge = Edge;
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
