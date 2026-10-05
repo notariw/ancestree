@@ -1,17 +1,10 @@
-import Dexie, { type EntityTable } from 'dexie';
+import { createClient } from '@supabase/supabase-js';
 import { Node, Edge } from '@xyflow/react';
 
 export type AppNode = Node;
 export type AppEdge = Edge;
 
-const db = new Dexie('AncestreeDB') as Dexie & {
-  nodes: EntityTable<AppNode, 'id'>;
-  edges: EntityTable<AppEdge, 'id'>;
-};
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-db.version(1).stores({
-  nodes: 'id',
-  edges: 'id'
-});
-
-export { db };
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

@@ -1,69 +1,124 @@
 import dagre from 'dagre';
 import { Node, Edge } from '@xyflow/react';
 
-const nodeWidth = 220;
-const nodeHeight = 90;
+const nodeWidth = 140;
+const nodeHeight = 220;
 
 export const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
   
-  dagreGraph.setGraph({ rankdir: direction, nodesep: 100, edgesep: 50, ranksep: 100 });
+  dagreGraph.setGraph({ 
+    rankdir: direction, 
+    nodesep: 80, // Jarak menyamping antar saudara
+    edgesep: 30, 
+    ranksep: 120  // Jarak vertikal diperbesar agar garis horizontal anak tidak menabrak kartu orang tua
+  });
 
+  // Identify blood nodes, spouse nodes, and union nodes
+  const unionNodes = nodes.filter(n => n.type === 'union');
+  const mergedSpouses = new Map<string, string>(); // spouseId -> bloodNodeId
+  const unionToBlood = new Map<string, string>(); // unionId -> bloodNodeId
+  
+  unionNodes.forEach(union => {
+    const parentEdges = edges.filter(e => e.target === union.id);
+    if (parentEdges.length === 2) {
+      const p1 = nodes.find(n => n.id === parentEdges[0].source);
+      const p2 = nodes.find(n => n.id === parentEdges[1].source);
+      
+      if (p1 && p2) {
+        const p1HasParents = edges.some(e => e.target === p1.id && e.source !== union.id);
+        const p2HasParents = edges.some(e => e.target === p2.id && e.source !== union.id);
+        
+        let blood = p1;
+        let spouse = p2;
+        
+        // P1 tidak punya orang tua, tapi P2 punya -> P2 adalah blood, P1 adalah spouse pendatang
+        if (!p1HasParents && p2HasParents) {
+          blood = p2;
+          spouse = p1;
+        }
+        
+        mergedSpouses.set(spouse.id, blood.id);
+        unionToBlood.set(union.id, blood.id);
+      }
+    }
+  });
+
+  // Insert nodes to Dagre
   nodes.forEach((node) => {
-    const isUnion = node.type === 'union';
+    if (mergedSpouses.has(node.id)) return; // Sembunyikan spouse dari Dagre
+    if (unionToBlood.has(node.id)) return;  // Sembunyikan union dari Dagre
+    
+    // Jika node ini punya spouse, perlebar ukurannya jadi 2x lipat + nodesep
+    const isBloodWithSpouse = Array.from(mergedSpouses.values()).includes(node.id);
+    
     dagreGraph.setNode(node.id, { 
-      width: isUnion ? 32 : nodeWidth, 
-      height: isUnion ? 32 : nodeHeight 
+      width: isBloodWithSpouse ? (nodeWidth * 2 + 80) : nodeWidth, 
+      height: nodeHeight 
     });
   });
 
+  // Insert edges to Dagre
   edges.forEach((edge) => {
-    dagreGraph.setEdge(edge.source, edge.target);
+    let source = edge.source;
+    let target = edge.target;
+    
+    // Alihkan koneksi dari/ke spouse/union menuju ke node utamanya (Blood Node)
+    if (mergedSpouses.has(source)) source = mergedSpouses.get(source)!;
+    if (unionToBlood.has(source)) source = unionToBlood.get(source)!;
+    
+    if (mergedSpouses.has(target)) target = mergedSpouses.get(target)!;
+    if (unionToBlood.has(target)) target = unionToBlood.get(target)!;
+    
+    // Hindari loop ke diri sendiri (misal dari blood ke union yang sekarang jadi blood ke blood)
+    if (source !== target) {
+      dagreGraph.setEdge(source, target, { minlen: 1 });
+    }
   });
 
   dagre.layout(dagreGraph);
 
+  // Post-processing: Kembalikan spouse dan union ke posisi sebenarnya
   const layoutedNodes = nodes.map((node) => {
+    // Jika node adalah Spouse
+    if (mergedSpouses.has(node.id)) {
+      const bloodId = mergedSpouses.get(node.id)!;
+      const bloodPos = dagreGraph.node(bloodId);
+      return {
+        ...node,
+        position: {
+          x: bloodPos.x + 40, // Letakkan di sebelah kanan (180 - 140 = 40)
+          y: bloodPos.y - (nodeHeight / 2)
+        }
+      };
+    }
+    
+    // Jika node adalah Union
+    if (unionToBlood.has(node.id)) {
+      const bloodId = unionToBlood.get(node.id)!;
+      const bloodPos = dagreGraph.node(bloodId);
+      return {
+        ...node,
+        position: {
+          x: bloodPos.x - 16, // Persis di tengah-tengah blok gabungan
+          y: bloodPos.y - 16
+        }
+      };
+    }
+
+    // Jika node normal atau Blood Node
     const nodeWithPosition = dagreGraph.node(node.id);
-    const isUnion = node.type === 'union';
+    const isBloodWithSpouse = Array.from(mergedSpouses.values()).includes(node.id);
+    
     return {
       ...node,
       position: {
-        x: nodeWithPosition.x - (isUnion ? 16 : nodeWidth / 2),
-        y: nodeWithPosition.y - (isUnion ? 16 : nodeHeight / 2),
+        // Jika dia adalah Blood Node, geser ke kiri blok gabungan
+        x: nodeWithPosition.x - (isBloodWithSpouse ? (nodeWidth + 40) : (nodeWidth / 2)),
+        y: nodeWithPosition.y - (nodeHeight / 2),
       },
     };
-  });
-
-  // Post-process to align union nodes perfectly horizontally and vertically with their parents
-  layoutedNodes.forEach(node => {
-    if (node.type === 'union') {
-      // Find incoming edges to this union node
-      const parentEdges = edges.filter(e => e.target === node.id);
-      if (parentEdges.length > 0) {
-        // Find the parent nodes
-        const parentNodes = layoutedNodes.filter(n => parentEdges.some(e => e.source === n.id));
-        
-        if (parentNodes.length === 2) {
-          // If there are exactly 2 parents, put the union node exactly in the middle of them
-          const p1 = parentNodes[0];
-          const p2 = parentNodes[1];
-          
-          const centerX = (p1.position.x + p2.position.x) / 2;
-          const centerY = (p1.position.y + p2.position.y) / 2;
-          
-          node.position.x = centerX + (nodeWidth / 2) - 16;
-          node.position.y = centerY + (nodeHeight / 2) - 16;
-        } else if (parentNodes.length > 0) {
-          // Fallback if there's somehow only 1 or >2 parents
-          const avgCenterX = parentNodes.reduce((sum, p) => sum + (p.position.x + nodeWidth / 2), 0) / parentNodes.length;
-          const avgCenterY = parentNodes.reduce((sum, p) => sum + (p.position.y + nodeHeight / 2), 0) / parentNodes.length;
-          node.position.x = avgCenterX - 16;
-          node.position.y = avgCenterY - 16;
-        }
-      }
-    }
   });
 
   return { nodes: layoutedNodes, edges };
