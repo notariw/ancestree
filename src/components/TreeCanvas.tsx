@@ -457,7 +457,7 @@ export default function TreeCanvas() {
   };
 
   return (
-    <div className="w-screen h-screen bg-slate-50">
+    <div className="w-screen h-[100dvh] bg-slate-50">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -479,7 +479,7 @@ export default function TreeCanvas() {
         <Background color="#cbd5e1" gap={24} size={2} />
         <Controls className="bg-white border-slate-200 fill-slate-700 [&>button]:bg-white [&>button]:border-slate-200 [&>button]:text-slate-700 hover:[&>button]:bg-slate-50" />
 
-        <Panel position="top-left" className="m-6">
+        <Panel position="top-left" className="m-4 mt-8 sm:m-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-slate-200 overflow-hidden bg-white border border-slate-100">
               <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
@@ -489,7 +489,7 @@ export default function TreeCanvas() {
         </Panel>
 
 
-        <Panel position="top-right" className="m-6">
+        <Panel position="top-right" className="m-4 mt-8 sm:m-6">
           {role === 'guest' ? (
             <button onClick={() => {setIsLoginModalOpen(true); setPinError(false);}} className="p-3 bg-white/90 hover:bg-slate-50 text-slate-500 hover:text-indigo-600 rounded-full shadow-lg backdrop-blur-md transition-all border border-slate-100" title="Buka Edit">
               <Lock className="w-5 h-5" />
@@ -509,7 +509,7 @@ export default function TreeCanvas() {
 
         {/* Bottom Navbar */}
         {role !== 'guest' && (
-          <Panel position="bottom-center" className="mb-6 z-50">
+          <Panel position="bottom-center" className="mb-8 sm:mb-6 z-50">
             <div className="flex items-center gap-4 px-6 py-4 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-slate-200">
               {isLoading ? (
                 <div className="flex items-center gap-2 text-slate-500 text-sm px-4">
