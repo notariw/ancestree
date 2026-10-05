@@ -481,8 +481,8 @@ export default function TreeCanvas() {
 
         <Panel position="top-left" className="m-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-              <Users className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg shadow-slate-200 overflow-hidden bg-white border border-slate-100">
+              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
             </div>
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Ancestree</h1>
           </div>
