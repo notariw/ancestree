@@ -19,7 +19,7 @@ import { getLayoutedElements } from '@/lib/layout';
 import CustomNode from './CustomNode';
 import UnionNode from './UnionNode';
 import SearchableSelect from './SearchableSelect';
-import { Plus, Users, Upload, X, Edit2, Trash2, AlertTriangle, Lock, LogOut } from 'lucide-react';
+import { Plus, Users, Upload, X, Edit2, Trash2, AlertTriangle, Lock, LogOut, Phone, MapPin, Info } from 'lucide-react';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -73,6 +73,17 @@ export default function TreeCanvas() {
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [isDeleteFormOpen, setIsDeleteFormOpen] = useState(false);
   const [newName, setNewName] = useState('');
+
+  const [newContact, setNewContact] = useState('');
+  const [newAddress, setNewAddress] = useState('');
+  
+  // Edit state additions
+  const [editContact, setEditContact] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+
+  // Profile Modal State
+  const [selectedProfile, setSelectedProfile] = useState<AppNode['data'] | null>(null);
+
   const [relationship, setRelationship] = useState<'child' | 'parent' | 'spouse'>('child');
   const [selectedRelativeId, setSelectedRelativeId] = useState('');
   const [secondaryRelativeId, setSecondaryRelativeId] = useState('');
@@ -98,12 +109,16 @@ export default function TreeCanvas() {
       if (node) {
         setEditingNode({ id: node.id, name: node.data.label as string, avatarUrl: node.data.avatarUrl as string | null });
         setEditName(node.data.label as string);
+        setEditContact((node.data.contact as string) || '');
+        setEditAddress((node.data.address as string) || '');
         setEditAvatarPreview(node.data.avatarUrl as string | null);
         setEditAvatarFile(null);
       }
     } else {
       setEditingNode(null);
       setEditName('');
+      setEditContact('');
+      setEditAddress('');
       setEditAvatarPreview(null);
       setEditAvatarFile(null);
     }
@@ -127,7 +142,7 @@ export default function TreeCanvas() {
       id: n.id,
       type: n.type,
       position: { x: n.position_x, y: n.position_y },
-      data: { label: n.label, avatarUrl: n.avatar_url || null },
+      data: { label: n.label, avatarUrl: n.avatar_url || null, contact: n.contact || null, address: n.address || null },
     }));
 
     const fetchedEdges: AppEdge[] = (rawEdges || []).map((e) => ({
@@ -277,6 +292,8 @@ export default function TreeCanvas() {
       position_y: 0,
       label: newName,
       avatar_url: avatarUrl,
+      contact: newContact,
+      address: newAddress,
     });
 
     const edgesToInsert: object[] = [];
@@ -380,6 +397,8 @@ export default function TreeCanvas() {
     }
 
     setNewName('');
+    setNewContact('');
+    setNewAddress('');
     setSelectedRelativeId('');
     setSecondaryRelativeId('');
     clearAvatar();
@@ -410,7 +429,9 @@ export default function TreeCanvas() {
 
     await supabase.from('nodes').update({
       label: editName,
-      avatar_url: avatarUrl
+      avatar_url: avatarUrl,
+      contact: editContact,
+      address: editAddress
     }).eq('id', editingNode.id);
 
     setEditingNode(null);
@@ -464,6 +485,11 @@ export default function TreeCanvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={(_, node) => {
+          if (node.type !== 'union') {
+            setSelectedProfile(node.data);
+          }
+        }}
         nodeTypes={customNodeTypes}
         defaultEdgeOptions={{
           type: 'step', // Membuat garis patah-patah 90 derajat
@@ -553,6 +579,69 @@ export default function TreeCanvas() {
       </ReactFlow>
 
       {/* Modals */}
+
+      {/* Profile Modal */}
+      {selectedProfile && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 p-4" onClick={() => setSelectedProfile(null)}>
+          <div className="bg-white/95 border border-slate-200 rounded-3xl shadow-2xl w-full max-w-sm animate-in zoom-in-95 duration-300 p-8 relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-500 to-purple-600" />
+            <button onClick={() => setSelectedProfile(null)} className="absolute top-4 right-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-colors z-10">
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="relative mt-8 mb-6 flex flex-col items-center">
+              <div className="w-32 h-32 bg-white rounded-full p-1.5 shadow-xl mb-4">
+                {selectedProfile.avatarUrl ? (
+                  <img src={selectedProfile.avatarUrl as string} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                ) : (
+                  <div className="w-full h-full rounded-full bg-slate-100 flex items-center justify-center">
+                    <Users className="w-12 h-12 text-slate-400" />
+                  </div>
+                )}
+              </div>
+              <h2 className="text-2xl font-bold text-slate-800 text-center leading-tight">{selectedProfile.label as string}</h2>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                  <Phone className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-slate-500 mb-0.5">Nomor Handphone / WhatsApp</p>
+                  <p className="text-sm font-semibold text-slate-800">
+                    {selectedProfile.contact ? (
+                      <a href={`https://wa.me/${(selectedProfile.contact as string).replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="hover:text-indigo-600 hover:underline">
+                        {selectedProfile.contact as string}
+                      </a>
+                    ) : (
+                      <span className="text-slate-400 font-normal italic">Belum ditambahkan</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                  <MapPin className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-slate-500 mb-0.5">Alamat / Domisili</p>
+                  <p className="text-sm font-semibold text-slate-800">
+                    {selectedProfile.address ? (selectedProfile.address as string) : <span className="text-slate-400 font-normal italic">Belum ditambahkan</span>}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <button onClick={() => setSelectedProfile(null)} className="w-full mt-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-all active:scale-95">
+              Tutup
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Login Modal */}
       {isLoginModalOpen && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 p-4" onClick={() => setIsLoginModalOpen(false)}>
@@ -643,6 +732,30 @@ export default function TreeCanvas() {
                 />
               </div>
 
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1.5">No. HP / WA (Opsional)</label>
+                  <input
+                    type="text"
+                    value={newContact}
+                    onChange={(e) => setNewContact(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
+                    placeholder="misal: 08123456789"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1.5">Domisili (Opsional)</label>
+                  <input
+                    type="text"
+                    value={newAddress}
+                    onChange={(e) => setNewAddress(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
+                    placeholder="misal: Jakarta Selatan"
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-slate-600 mb-1.5">Hubungan</label>
@@ -679,10 +792,32 @@ export default function TreeCanvas() {
                 </div>
               )}
 
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
+              
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 mb-1.5">No. HP / WA (Opsional)</label>
+                      <input
+                        type="text"
+                        value={editContact}
+                        onChange={(e) => setEditContact(e.target.value)}
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-600 mb-1.5">Domisili (Opsional)</label>
+                      <input
+                        type="text"
+                        value={editAddress}
+                        onChange={(e) => setEditAddress(e.target.value)}
+                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
                   className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium rounded-xl shadow-lg shadow-indigo-500/25 transition-all active:scale-95 flex items-center justify-center gap-2 text-lg"
                 >
                   {isSubmitting ? (

@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { Node, Edge } from '@xyflow/react';
 
-export type AppNode = Node;
+export type AppNode = Node<{
+  label: string;
+  avatarUrl?: string | null;
+  contact?: string | null;
+  address?: string | null;
+}, string>;
 export type AppEdge = Edge;
 
 const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
