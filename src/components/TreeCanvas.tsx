@@ -200,8 +200,8 @@ export default function TreeCanvas() {
     }
 
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(fetchedNodes, fetchedEdges);
-    setNodes(layoutedNodes);
-    setEdges(layoutedEdges);
+    setNodes(layoutedNodes as AppNode[]);
+    setEdges(layoutedEdges as Edge[]);
     setIsLoading(false);
   };
 
