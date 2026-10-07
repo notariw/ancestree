@@ -82,7 +82,7 @@ export default function TreeCanvas() {
   const [editAddress, setEditAddress] = useState('');
 
   // Profile Modal State
-  const [selectedProfile, setSelectedProfile] = useState<AppNode['data'] | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<AppNode | null>(null);
 
   const [relationship, setRelationship] = useState<'child' | 'parent' | 'spouse'>('child');
   const [selectedRelativeId, setSelectedRelativeId] = useState('');
@@ -487,7 +487,7 @@ export default function TreeCanvas() {
         onConnect={onConnect}
         onNodeClick={(_, node) => {
           if (node.type !== 'union') {
-            setSelectedProfile(node.data);
+            setSelectedProfile(node as AppNode);
           }
         }}
         nodeTypes={customNodeTypes}
@@ -591,15 +591,15 @@ export default function TreeCanvas() {
             
             <div className="relative mt-8 mb-6 flex flex-col items-center animate-bounce-in delay-200 fill-mode-both">
               <div className="w-32 h-32 bg-white rounded-full p-1.5 shadow-xl mb-4 transition-transform hover:scale-105 duration-300">
-                {selectedProfile.avatarUrl ? (
-                  <img src={selectedProfile.avatarUrl as string} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                {selectedProfile.data.avatarUrl ? (
+                  <img src={selectedProfile.data.avatarUrl as string} alt="Profile" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <div className="w-full h-full rounded-full bg-slate-100 flex items-center justify-center">
                     <Users className="w-12 h-12 text-slate-400" />
                   </div>
                 )}
               </div>
-              <h2 className="text-2xl font-bold text-slate-800 text-center leading-tight">{selectedProfile.label as string}</h2>
+              <h2 className="text-2xl font-bold text-slate-800 text-center leading-tight">{selectedProfile.data.label as string}</h2>
             </div>
 
             <div className="space-y-4">
@@ -610,9 +610,9 @@ export default function TreeCanvas() {
                 <div>
                   <p className="text-xs font-medium text-slate-500 mb-0.5">Nomor Handphone / WhatsApp</p>
                   <p className="text-sm font-semibold text-slate-800">
-                    {selectedProfile.contact ? (
-                      <a href={`https://wa.me/${(selectedProfile.contact as string).replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="hover:text-indigo-600 hover:underline">
-                        {selectedProfile.contact as string}
+                    {selectedProfile.data.contact ? (
+                      <a href={`https://wa.me/${(selectedProfile.data.contact as string).replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="hover:text-indigo-600 hover:underline">
+                        {selectedProfile.data.contact as string}
                       </a>
                     ) : (
                       <span className="text-slate-400 font-normal italic">Belum ditambahkan</span>
@@ -628,7 +628,7 @@ export default function TreeCanvas() {
                 <div>
                   <p className="text-xs font-medium text-slate-500 mb-0.5">Alamat / Domisili</p>
                   <p className="text-sm font-semibold text-slate-800">
-                    {selectedProfile.address ? (selectedProfile.address as string) : <span className="text-slate-400 font-normal italic">Belum ditambahkan</span>}
+                    {selectedProfile.data.address ? (selectedProfile.data.address as string) : <span className="text-slate-400 font-normal italic">Belum ditambahkan</span>}
                   </p>
                 </div>
               </div>
