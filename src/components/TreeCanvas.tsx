@@ -585,6 +585,22 @@ export default function TreeCanvas() {
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-md animate-fade-in p-4" onClick={() => setSelectedProfile(null)}>
           <div className="bg-white/95 border border-slate-200 rounded-3xl shadow-2xl w-full max-w-sm animate-bounce-in p-8 relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-500 to-purple-600 animate-fade-in" />
+            
+            {role !== 'guest' && (
+              <button 
+                onClick={() => {
+                  setEditSelectedId(selectedProfile.id);
+                  setIsEditFormOpen(true);
+                  setSelectedProfile(null);
+                }} 
+                className="absolute top-4 left-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all hover:-rotate-12 z-10 flex items-center justify-center gap-2 px-3 text-sm font-medium"
+                title="Edit Profil Ini"
+              >
+                <Edit2 className="w-4 h-4" />
+                Edit
+              </button>
+            )}
+
             <button onClick={() => setSelectedProfile(null)} className="absolute top-4 right-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all hover:rotate-90 z-10">
               <X className="w-5 h-5" />
             </button>
