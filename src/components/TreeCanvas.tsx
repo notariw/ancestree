@@ -582,15 +582,15 @@ export default function TreeCanvas() {
 
       {/* Profile Modal */}
       {selectedProfile && typeof document !== 'undefined' && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-300 p-4" onClick={() => setSelectedProfile(null)}>
-          <div className="bg-white/95 border border-slate-200 rounded-3xl shadow-2xl w-full max-w-sm animate-in zoom-in-95 duration-300 p-8 relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-500 to-purple-600" />
-            <button onClick={() => setSelectedProfile(null)} className="absolute top-4 right-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-colors z-10">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-md animate-in fade-in duration-500 p-4" onClick={() => setSelectedProfile(null)}>
+          <div className="bg-white/95 border border-slate-200 rounded-3xl shadow-2xl w-full max-w-sm animate-in fade-in zoom-in-[0.85] slide-in-from-bottom-12 duration-500 ease-out p-8 relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-500 to-purple-600 animate-in fade-in slide-in-from-top-full duration-700 delay-100 fill-mode-both" />
+            <button onClick={() => setSelectedProfile(null)} className="absolute top-4 right-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all hover:rotate-90 z-10">
               <X className="w-5 h-5" />
             </button>
             
-            <div className="relative mt-8 mb-6 flex flex-col items-center">
-              <div className="w-32 h-32 bg-white rounded-full p-1.5 shadow-xl mb-4">
+            <div className="relative mt-8 mb-6 flex flex-col items-center animate-in zoom-in-50 duration-500 delay-200 fill-mode-both">
+              <div className="w-32 h-32 bg-white rounded-full p-1.5 shadow-xl mb-4 transition-transform hover:scale-105 duration-300">
                 {selectedProfile.avatarUrl ? (
                   <img src={selectedProfile.avatarUrl as string} alt="Profile" className="w-full h-full rounded-full object-cover" />
                 ) : (
@@ -603,7 +603,7 @@ export default function TreeCanvas() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in slide-in-from-right-8 fade-in duration-500 delay-300 fill-mode-both hover:-translate-y-1 transition-transform cursor-default shadow-sm hover:shadow-md">
                 <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
                   <Phone className="w-5 h-5 text-indigo-600" />
                 </div>
@@ -621,7 +621,7 @@ export default function TreeCanvas() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+              <div className="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in slide-in-from-right-8 fade-in duration-500 delay-500 fill-mode-both hover:-translate-y-1 transition-transform cursor-default shadow-sm hover:shadow-md">
                 <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
                   <MapPin className="w-5 h-5 text-emerald-600" />
                 </div>
@@ -634,7 +634,7 @@ export default function TreeCanvas() {
               </div>
             </div>
             
-            <button onClick={() => setSelectedProfile(null)} className="w-full mt-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-all active:scale-95">
+            <button onClick={() => setSelectedProfile(null)} className="w-full mt-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition-all active:scale-95 animate-in fade-in duration-500 delay-700 fill-mode-both">
               Tutup
             </button>
           </div>
