@@ -633,12 +633,6 @@ export default function TreeCanvas() {
               </button>
             )}
 
-            {!isInlineEditing && (
-              <button onClick={() => setSelectedProfile(null)} className="absolute top-4 right-4 p-2 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all hover:rotate-90 z-10">
-                <X className="w-5 h-5" />
-              </button>
-            )}
-
             <div className="relative mt-8 mb-6 flex flex-col items-center animate-bounce-in delay-200 fill-mode-both">
               <div className="w-32 h-32 bg-white rounded-full p-1.5 shadow-xl mb-4 transition-transform hover:scale-105 duration-300">
                 {selectedProfile.data.avatarUrl ? (
