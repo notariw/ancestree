@@ -700,7 +700,7 @@ export default function TreeCanvas() {
                 )}
               </div>
               
-              <div className="flex-1 min-w-0 flex flex-col justify-center mt-4">
+              <div className="flex-1 min-w-0 flex flex-col justify-center mt-2 bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-sm border border-white/50">
                 {isInlineEditing ? (
                   <>
                     <input 
@@ -721,7 +721,7 @@ export default function TreeCanvas() {
                   </>
                 ) : (
                   <>
-                    <h2 className="text-xl font-bold text-slate-800 leading-tight border-b border-slate-800 pb-1 mb-1 truncate">{selectedProfile.data.label as string}</h2>
+                    <h2 className="text-xl font-bold text-slate-800 leading-tight border-b border-slate-300 pb-1.5 mb-1.5 truncate">{selectedProfile.data.label as string}</h2>
                     <p className="text-sm font-normal text-slate-700 truncate">
                       {selectedProfile.data.title ? (selectedProfile.data.title as string) : <span className="text-slate-400 italic">Belum ada gelar</span>}
                     </p>
