@@ -98,7 +98,19 @@ export default function TreeCanvas() {
       // Cari union di mana selectedProfile menjadi parent
       const unions = edges.filter(e => e.source === selectedProfile.id && dbNodes.find(n => n.id === e.target)?.type === 'union').map(e => e.target);
       // Cari anak dari union tersebut
-      let children = edges.filter(e => unions.includes(e.source)).map(e => dbNodes.find(n => n.id === e.target)).filter(Boolean) as AppNode[];
+      const childrenViaUnion = edges.filter(e => unions.includes(e.source)).map(e => dbNodes.find(n => n.id === e.target)).filter(Boolean) as AppNode[];
+      // Cari anak langsung (tanpa union / single parent)
+      const directChildren = edges.filter(e => e.source === selectedProfile.id && dbNodes.find(n => n.id === e.target)?.type !== 'union').map(e => dbNodes.find(n => n.id === e.target)).filter(Boolean) as AppNode[];
+      
+      // Gabungkan dan filter unik
+      let children = [...childrenViaUnion, ...directChildren];
+      const uniqueChildrenIds = new Set();
+      children = children.filter(c => {
+        if (uniqueChildrenIds.has(c.id)) return false;
+        uniqueChildrenIds.add(c.id);
+        return true;
+      });
+
       // Urutkan
       children = children.sort((a, b) => ((a.data.orderIndex as number) || 0) - ((b.data.orderIndex as number) || 0));
       setProfileChildren(children);
