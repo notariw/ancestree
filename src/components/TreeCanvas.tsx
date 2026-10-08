@@ -670,7 +670,7 @@ export default function TreeCanvas() {
       {/* Profile Modal */}
       {selectedProfile && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-md animate-fade-in p-4" onClick={() => { if(!isInlineEditing) setSelectedProfile(null) }}>
-          <div className="bg-white/95 border border-slate-200 rounded-3xl shadow-2xl w-full max-w-sm animate-bounce-in p-8 relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white/95 border border-slate-200 rounded-3xl shadow-2xl w-full max-w-lg animate-bounce-in p-6 sm:p-8 relative overflow-hidden" onClick={(e) => e.stopPropagation()}>
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-500 to-purple-600 animate-fade-in" />
             
             {role !== 'guest' && !isInlineEditing && (
@@ -689,8 +689,8 @@ export default function TreeCanvas() {
               </button>
             )}
 
-            <div className="relative mt-8 mb-6 flex flex-row items-center gap-4 animate-bounce-in delay-200 fill-mode-both px-2">
-              <div className="w-24 h-24 shrink-0 bg-white rounded-full p-1 shadow-lg transition-transform hover:scale-105 duration-300">
+            <div className="relative mt-8 mb-6 flex flex-row items-center gap-3 animate-bounce-in delay-200 fill-mode-both">
+              <div className="w-20 h-20 shrink-0 bg-white rounded-full p-1 shadow-lg transition-transform hover:scale-105 duration-300">
                 {selectedProfile.data.avatarUrl ? (
                   <img src={selectedProfile.data.avatarUrl as string} alt="Profile" className="w-full h-full rounded-full object-cover" />
                 ) : (
@@ -721,8 +721,8 @@ export default function TreeCanvas() {
                   </>
                 ) : (
                   <>
-                    <h2 className="text-xl font-bold text-slate-800 leading-tight border-b border-slate-300 pb-1.5 mb-1.5 truncate">{selectedProfile.data.label as string}</h2>
-                    <p className="text-sm font-normal text-slate-700 truncate">
+                    <h2 className={`font-bold text-slate-800 leading-tight border-b border-slate-300 pb-1.5 mb-1.5 break-words whitespace-normal ${((selectedProfile.data.label as string) || '').length > 40 ? 'text-sm' : ((selectedProfile.data.label as string) || '').length > 24 ? 'text-base' : 'text-xl'}`}>{selectedProfile.data.label as string}</h2>
+                    <p className="text-sm font-normal text-slate-700 break-words whitespace-normal">
                       {selectedProfile.data.title ? (selectedProfile.data.title as string) : <span className="text-slate-400 italic">Belum ada gelar</span>}
                     </p>
                   </>
