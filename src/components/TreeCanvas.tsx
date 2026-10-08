@@ -16,6 +16,51 @@ import '@xyflow/react/dist/style.css';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase, AppNode, AppEdge } from '@/lib/db';
 import { getLayoutedElements } from '@/lib/layout';
+import {
+  DndContext,
+  closestCenter,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+function SortableChild({ child, disabled }: { child: any, disabled: boolean }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: child.id, disabled });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`flex items-center bg-white border ${isDragging ? 'border-indigo-500 border-dashed bg-indigo-50 shadow-md scale-105 opacity-80' : 'border-slate-200'} rounded-full shadow-sm px-3 py-1.5 ${disabled ? 'cursor-default opacity-50' : 'cursor-grab active:cursor-grabbing'} transition-all hover:border-indigo-300 z-10 relative outline-none touch-none`}
+    >
+      <GripHorizontal className="w-3.5 h-3.5 text-slate-400 mr-2 outline-none pointer-events-none" />
+      <span className="text-xs font-semibold text-slate-700 max-w-[100px] truncate pointer-events-none">{child.data.label as string}</span>
+    </div>
+  );
+}
+
 import CustomNode from './CustomNode';
 import UnionNode from './UnionNode';
 import SearchableSelect from './SearchableSelect';
@@ -119,71 +164,31 @@ export default function TreeCanvas() {
     }
   }, [selectedProfile, dbNodes, edges]);
 
-  const [draggedChildId, setDraggedChildId] = useState<string | null>(null);
-  const [dragOverChildId, setDragOverChildId] = useState<string | null>(null);
+  
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
+  );
 
-  const handleDragStart = (e: React.DragEvent, id: string) => {
-    if (role === 'guest') {
-      e.preventDefault();
-      return;
-    }
-    setDraggedChildId(id);
-    e.dataTransfer.effectAllowed = 'move';
-    setTimeout(() => {
-      if (e.target instanceof HTMLElement) {
-        e.target.style.opacity = '0.4';
-      }
-    }, 0);
-  };
-
-  const handleDragEnd = (e: React.DragEvent) => {
-    setDraggedChildId(null);
-    setDragOverChildId(null);
-    if (e.target instanceof HTMLElement) {
-      e.target.style.opacity = '1';
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent, id: string) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (draggedChildId !== id) {
-      setDragOverChildId(id);
-    }
-  };
-
-  const handleDragLeave = (e: React.DragEvent, id: string) => {
-    if (dragOverChildId === id) {
-      setDragOverChildId(null);
-    }
-  };
-
-  const handleDrop = async (e: React.DragEvent, targetId: string) => {
-    e.preventDefault();
-    setDragOverChildId(null);
+  const handleDragEnd = async (event: any) => {
+    const { active, over } = event;
+    if (!over || role === 'guest') return;
     
-    if (!draggedChildId || draggedChildId === targetId) {
-      setDraggedChildId(null);
-      return;
+    if (active.id !== over.id) {
+      const oldIndex = profileChildren.findIndex((item) => item.id === active.id);
+      const newIndex = profileChildren.findIndex((item) => item.id === over.id);
+
+      const newArr = arrayMove(profileChildren, oldIndex, newIndex);
+      setProfileChildren(newArr);
+      
+      const updates = newArr.map((child, index) => 
+        supabase.from('nodes').update({ order_index: index }).eq('id', child.id)
+      );
+      await Promise.all(updates);
+      loadAndLayout();
     }
-
-    const draggedIdx = profileChildren.findIndex(c => c.id === draggedChildId);
-    const targetIdx = profileChildren.findIndex(c => c.id === targetId);
-    if (draggedIdx === -1 || targetIdx === -1) return;
-
-    const newArr = [...profileChildren];
-    const [draggedItem] = newArr.splice(draggedIdx, 1);
-    newArr.splice(targetIdx, 0, draggedItem);
-
-    setProfileChildren(newArr);
-    setDraggedChildId(null);
-
-    const updates = newArr.map((child, index) => 
-      supabase.from('nodes').update({ order_index: index }).eq('id', child.id)
-    );
-    await Promise.all(updates);
-    loadAndLayout();
   };
+
 
   const handleMoveChild = async (childId: string, direction: -1 | 1) => {
     const currentIndex = profileChildren.findIndex(c => c.id === childId);
@@ -832,27 +837,20 @@ export default function TreeCanvas() {
               <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in duration-500 delay-500">
                 <p className="text-xs font-medium text-slate-500 mb-2">Urutan Anak (Geser & Lepas):</p>
                 <div className="flex flex-wrap gap-2">
-                  {profileChildren.map((child, idx) => (
-                    <div 
-                      key={child.id} 
-                      draggable={role !== 'guest'}
-                      onDragStart={(e) => handleDragStart(e, child.id)}
-                      onDragEnd={handleDragEnd}
-                      onDragOver={(e) => handleDragOver(e, child.id)}
-                      onDragLeave={(e) => handleDragLeave(e, child.id)}
-                      onDrop={(e) => handleDrop(e, child.id)}
-                      className={`flex items-center bg-white border ${
-                        draggedChildId === child.id 
-                          ? 'border-indigo-200 opacity-40' 
-                          : dragOverChildId === child.id 
-                            ? 'border-indigo-500 border-dashed border-2 bg-indigo-50 scale-105' 
-                            : 'border-slate-200'
-                      } rounded-full shadow-sm px-3 py-1.5 cursor-grab active:cursor-grabbing transition-all hover:border-indigo-300`}
+                  <DndContext 
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext 
+                      items={profileChildren.map(c => c.id)}
+                      strategy={horizontalListSortingStrategy}
                     >
-                      <GripHorizontal className="w-3.5 h-3.5 text-slate-400 mr-2" />
-                      <span className="text-xs font-semibold text-slate-700 max-w-[100px] truncate">{child.data.label as string}</span>
-                    </div>
-                  ))}
+                      {profileChildren.map((child) => (
+                        <SortableChild key={child.id} child={child} disabled={role === 'guest'} />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                 </div>
               </div>
             )}
