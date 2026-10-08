@@ -775,6 +775,19 @@ export default function TreeCanvas() {
               </div>
             </div>
             
+            {profileChildren.length > 0 && !isInlineEditing && (
+              <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in duration-500 delay-500">
+                <p className="text-xs font-medium text-slate-500 mb-2">Daftar Anak (Berdasarkan Urutan):</p>
+                <div className="flex flex-wrap gap-2">
+                  {profileChildren.map((child) => (
+                    <div key={child.id} className="flex items-center bg-white border border-slate-200 rounded-full shadow-sm px-3 py-1.5">
+                      <span className="text-xs font-semibold text-slate-700 truncate">{child.data.label as string}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             {profileChildren.length > 0 && isInlineEditing && (
               <div className="mt-6 p-5 bg-white rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-500 delay-500">
                 <p className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
