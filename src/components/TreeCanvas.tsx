@@ -671,31 +671,18 @@ export default function TreeCanvas() {
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-indigo-500 to-purple-600 animate-fade-in" />
             
             {role !== 'guest' && !isInlineEditing && (
-              <>
-                <button 
-                  onClick={() => {
-                    setInlineEditName(selectedProfile.data.label as string);
-                    setInlineEditContact((selectedProfile.data.contact as string) || '');
-                    setInlineEditAddress((selectedProfile.data.address as string) || '');
-                    setIsInlineEditing(true);
-                  }} 
-                  className="absolute top-4 left-4 w-9 h-9 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all hover:-rotate-12 z-10 flex items-center justify-center"
-                  title="Edit Profil Ini"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => {
-                    setDeleteSelectedId(selectedProfile.id);
-                    setIsDeleteFormOpen(true);
-                    setSelectedProfile(null);
-                  }} 
-                  className="absolute top-4 right-4 w-9 h-9 text-white/80 hover:text-white bg-red-500/20 hover:bg-red-500/40 rounded-full transition-all hover:rotate-12 z-10 flex items-center justify-center"
-                  title="Hapus Profil Ini"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </>
+              <button 
+                onClick={() => {
+                  setInlineEditName(selectedProfile.data.label as string);
+                  setInlineEditContact((selectedProfile.data.contact as string) || '');
+                  setInlineEditAddress((selectedProfile.data.address as string) || '');
+                  setIsInlineEditing(true);
+                }} 
+                className="absolute top-4 left-4 w-9 h-9 text-white/80 hover:text-white bg-black/20 hover:bg-black/40 rounded-full transition-all hover:-rotate-12 z-10 flex items-center justify-center"
+                title="Edit Profil Ini"
+              >
+                <Edit2 className="w-4 h-4" />
+              </button>
             )}
 
             <div className="relative mt-8 mb-6 flex flex-col items-center animate-bounce-in delay-200 fill-mode-both">
