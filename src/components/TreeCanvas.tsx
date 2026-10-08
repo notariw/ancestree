@@ -16,55 +16,10 @@ import '@xyflow/react/dist/style.css';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase, AppNode, AppEdge } from '@/lib/db';
 import { getLayoutedElements } from '@/lib/layout';
-import {
-  DndContext,
-  closestCenter,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  horizontalListSortingStrategy,
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-
-function SortableChild({ child, disabled }: { child: any, disabled: boolean }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: child.id, disabled });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`flex items-center bg-white border ${isDragging ? 'border-indigo-500 border-dashed bg-indigo-50 shadow-md scale-105 opacity-80' : 'border-slate-200'} rounded-full shadow-sm px-3 py-1.5 ${disabled ? 'cursor-default opacity-50' : 'cursor-grab active:cursor-grabbing'} transition-all hover:border-indigo-300 z-10 relative outline-none touch-none`}
-    >
-      <GripHorizontal className="w-3.5 h-3.5 text-slate-400 mr-2 outline-none pointer-events-none" />
-      <span className="text-xs font-semibold text-slate-700 max-w-[100px] truncate pointer-events-none">{child.data.label as string}</span>
-    </div>
-  );
-}
-
 import CustomNode from './CustomNode';
 import UnionNode from './UnionNode';
 import SearchableSelect from './SearchableSelect';
-import { Plus, Users, Upload, X, Edit2, Trash2, AlertTriangle, Lock, LogOut, Phone, MapPin, Info, ChevronLeft, ChevronRight, GripHorizontal } from 'lucide-react';
+import { Plus, Users, Upload, X, Edit2, Trash2, AlertTriangle, Lock, LogOut, Phone, MapPin, Info, ArrowUp, ArrowDown } from 'lucide-react';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -163,32 +118,6 @@ export default function TreeCanvas() {
       setProfileChildren([]);
     }
   }, [selectedProfile, dbNodes, edges]);
-
-  
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
-  );
-
-  const handleDragEnd = async (event: any) => {
-    const { active, over } = event;
-    if (!over || role === 'guest') return;
-    
-    if (active.id !== over.id) {
-      const oldIndex = profileChildren.findIndex((item) => item.id === active.id);
-      const newIndex = profileChildren.findIndex((item) => item.id === over.id);
-
-      const newArr = arrayMove(profileChildren, oldIndex, newIndex);
-      setProfileChildren(newArr);
-      
-      const updates = newArr.map((child, index) => 
-        supabase.from('nodes').update({ order_index: index }).eq('id', child.id)
-      );
-      await Promise.all(updates);
-      loadAndLayout();
-    }
-  };
-
 
   const handleMoveChild = async (childId: string, direction: -1 | 1) => {
     const currentIndex = profileChildren.findIndex(c => c.id === childId);
@@ -834,23 +763,34 @@ export default function TreeCanvas() {
             </div>
             
             {profileChildren.length > 0 && isInlineEditing && (
-              <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in duration-500 delay-500">
-                <p className="text-xs font-medium text-slate-500 mb-2">Urutan Anak (Geser & Lepas):</p>
-                <div className="flex flex-wrap gap-2">
-                  <DndContext 
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext 
-                      items={profileChildren.map(c => c.id)}
-                      strategy={horizontalListSortingStrategy}
-                    >
-                      {profileChildren.map((child) => (
-                        <SortableChild key={child.id} child={child} disabled={role === 'guest'} />
-                      ))}
-                    </SortableContext>
-                  </DndContext>
+              <div className="mt-6 p-5 bg-white rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-500 delay-500">
+                <p className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-indigo-500" /> Atur Urutan Anak
+                </p>
+                <div className="flex flex-col gap-3">
+                  {profileChildren.map((child, idx) => (
+                    <div key={child.id} className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl p-3 hover:bg-slate-100 transition-colors">
+                      <span className="text-sm font-medium text-slate-700 px-2 truncate flex-1">{child.data.label as string}</span>
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={(e) => { e.preventDefault(); handleMoveChild(child.id, -1); }}
+                          disabled={idx === 0 || role === 'guest'}
+                          className="p-2 text-slate-400 hover:text-indigo-600 disabled:opacity-30 transition-colors rounded-lg bg-white shadow-sm border border-slate-200 active:scale-95"
+                          title="Naikkan urutan"
+                        >
+                          <ArrowUp className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.preventDefault(); handleMoveChild(child.id, 1); }}
+                          disabled={idx === profileChildren.length - 1 || role === 'guest'}
+                          className="p-2 text-slate-400 hover:text-indigo-600 disabled:opacity-30 transition-colors rounded-lg bg-white shadow-sm border border-slate-200 active:scale-95"
+                          title="Turunkan urutan"
+                        >
+                          <ArrowDown className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
