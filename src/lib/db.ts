@@ -6,6 +6,7 @@ export type AppNode = Node<{
   avatarUrl?: string | null;
   contact?: string | null;
   address?: string | null;
+  orderIndex?: number;
 }, string>;
 export type AppEdge = Edge;
 
