@@ -3,6 +3,7 @@ import { Node, Edge } from '@xyflow/react';
 
 export type AppNode = Node<{
   label: string;
+  title?: string | null;
   avatarUrl?: string | null;
   contact?: string | null;
   address?: string | null;

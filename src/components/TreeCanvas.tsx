@@ -87,6 +87,7 @@ export default function TreeCanvas() {
   // Inline Edit State
   const [isInlineEditing, setIsInlineEditing] = useState(false);
   const [inlineEditName, setInlineEditName] = useState('');
+  const [inlineEditTitle, setInlineEditTitle] = useState('');
   const [inlineEditContact, setInlineEditContact] = useState('');
   const [inlineEditAddress, setInlineEditAddress] = useState('');
 
@@ -145,6 +146,7 @@ export default function TreeCanvas() {
     setIsSubmitting(true);
     await supabase.from('nodes').update({
       label: inlineEditName,
+      adat_title: inlineEditTitle,
       contact: inlineEditContact,
       address: inlineEditAddress
     }).eq('id', selectedProfile.id);
@@ -155,6 +157,7 @@ export default function TreeCanvas() {
       data: {
         ...selectedProfile.data,
         label: inlineEditName,
+        title: inlineEditTitle,
         contact: inlineEditContact,
         address: inlineEditAddress
       }
@@ -223,7 +226,7 @@ export default function TreeCanvas() {
       id: n.id,
       type: n.type,
       position: { x: n.position_x, y: n.position_y },
-      data: { label: n.label, avatarUrl: n.avatar_url || null, contact: n.contact || null, address: n.address || null, orderIndex: n.order_index || 0 },
+      data: { label: n.label, title: n.adat_title || null, avatarUrl: n.avatar_url || null, contact: n.contact || null, address: n.address || null, orderIndex: n.order_index || 0 },
     }));
 
     fetchedNodes.sort((a, b) => (a.data.orderIndex as number) - (b.data.orderIndex as number));
@@ -674,6 +677,7 @@ export default function TreeCanvas() {
               <button 
                 onClick={() => {
                   setInlineEditName(selectedProfile.data.label as string);
+                  setInlineEditTitle((selectedProfile.data.title as string) || '');
                   setInlineEditContact((selectedProfile.data.contact as string) || '');
                   setInlineEditAddress((selectedProfile.data.address as string) || '');
                   setIsInlineEditing(true);
@@ -685,29 +689,45 @@ export default function TreeCanvas() {
               </button>
             )}
 
-            <div className="relative mt-8 mb-6 flex flex-col items-center animate-bounce-in delay-200 fill-mode-both">
-              <div className="w-32 h-32 bg-white rounded-full p-1.5 shadow-xl mb-4 transition-transform hover:scale-105 duration-300">
+            <div className="relative mt-8 mb-6 flex flex-row items-center gap-4 animate-bounce-in delay-200 fill-mode-both px-2">
+              <div className="w-24 h-24 shrink-0 bg-white rounded-full p-1 shadow-lg transition-transform hover:scale-105 duration-300">
                 {selectedProfile.data.avatarUrl ? (
                   <img src={selectedProfile.data.avatarUrl as string} alt="Profile" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <div className="w-full h-full rounded-full bg-slate-100 flex items-center justify-center">
-                    <Users className="w-12 h-12 text-slate-400" />
+                    <Users className="w-10 h-10 text-slate-400" />
                   </div>
                 )}
               </div>
               
-              {isInlineEditing ? (
-                <input 
-                  type="text" 
-                  value={inlineEditName} 
-                  onChange={e => setInlineEditName(e.target.value)} 
-                  className="text-2xl font-bold text-slate-800 text-center w-full border-b-2 border-indigo-500 bg-transparent focus:outline-none px-2 py-1"
-                  placeholder="Nama Lengkap"
-                  autoFocus
-                />
-              ) : (
-                <h2 className="text-2xl font-bold text-slate-800 text-center leading-tight">{selectedProfile.data.label as string}</h2>
-              )}
+              <div className="flex-1 min-w-0 flex flex-col justify-center mt-4">
+                {isInlineEditing ? (
+                  <>
+                    <input 
+                      type="text" 
+                      value={inlineEditName} 
+                      onChange={e => setInlineEditName(e.target.value)} 
+                      className="text-xl font-bold text-slate-800 w-full border-b border-indigo-500 bg-transparent focus:outline-none py-0.5"
+                      placeholder="Nama Lengkap"
+                      autoFocus
+                    />
+                    <input 
+                      type="text" 
+                      value={inlineEditTitle} 
+                      onChange={e => setInlineEditTitle(e.target.value)} 
+                      className="text-sm font-normal text-slate-600 w-full bg-transparent focus:outline-none py-0.5 mt-1 border-b border-dashed border-slate-300 focus:border-indigo-500"
+                      placeholder="Gelar Adat (Opsional)"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-bold text-slate-800 leading-tight border-b border-slate-800 pb-1 mb-1 truncate">{selectedProfile.data.label as string}</h2>
+                    <p className="text-sm font-normal text-slate-700 truncate">
+                      {selectedProfile.data.title ? (selectedProfile.data.title as string) : <span className="text-slate-400 italic">Belum ada gelar</span>}
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="space-y-4">
