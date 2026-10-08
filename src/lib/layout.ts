@@ -59,8 +59,17 @@ export const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'T
     });
   });
 
+  // Sort edges to ensure Dagre orders children correctly
+  const sortedEdges = [...edges].sort((a, b) => {
+    const targetA = nodes.find(n => n.id === a.target);
+    const targetB = nodes.find(n => n.id === b.target);
+    const orderA = (targetA?.data?.orderIndex as number) || 0;
+    const orderB = (targetB?.data?.orderIndex as number) || 0;
+    return orderA - orderB;
+  });
+
   // Insert edges to Dagre
-  edges.forEach((edge) => {
+  sortedEdges.forEach((edge) => {
     let source = edge.source;
     let target = edge.target;
     

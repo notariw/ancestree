@@ -120,6 +120,7 @@ export default function TreeCanvas() {
   }, [selectedProfile, dbNodes, edges]);
 
   const [draggedChildId, setDraggedChildId] = useState<string | null>(null);
+  const [dragOverChildId, setDragOverChildId] = useState<string | null>(null);
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
     if (role === 'guest') {
@@ -130,25 +131,37 @@ export default function TreeCanvas() {
     e.dataTransfer.effectAllowed = 'move';
     setTimeout(() => {
       if (e.target instanceof HTMLElement) {
-        e.target.style.opacity = '0.5';
+        e.target.style.opacity = '0.4';
       }
     }, 0);
   };
 
   const handleDragEnd = (e: React.DragEvent) => {
     setDraggedChildId(null);
+    setDragOverChildId(null);
     if (e.target instanceof HTMLElement) {
       e.target.style.opacity = '1';
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, id: string) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    if (draggedChildId !== id) {
+      setDragOverChildId(id);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent, id: string) => {
+    if (dragOverChildId === id) {
+      setDragOverChildId(null);
+    }
   };
 
   const handleDrop = async (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
+    setDragOverChildId(null);
+    
     if (!draggedChildId || draggedChildId === targetId) {
       setDraggedChildId(null);
       return;
@@ -815,7 +828,7 @@ export default function TreeCanvas() {
               </div>
             </div>
             
-            {profileChildren.length > 0 && !isInlineEditing && (
+            {profileChildren.length > 0 && isInlineEditing && (
               <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in duration-500 delay-500">
                 <p className="text-xs font-medium text-slate-500 mb-2">Urutan Anak (Geser & Lepas):</p>
                 <div className="flex flex-wrap gap-2">
@@ -825,9 +838,16 @@ export default function TreeCanvas() {
                       draggable={role !== 'guest'}
                       onDragStart={(e) => handleDragStart(e, child.id)}
                       onDragEnd={handleDragEnd}
-                      onDragOver={handleDragOver}
+                      onDragOver={(e) => handleDragOver(e, child.id)}
+                      onDragLeave={(e) => handleDragLeave(e, child.id)}
                       onDrop={(e) => handleDrop(e, child.id)}
-                      className={`flex items-center bg-white border ${draggedChildId === child.id ? 'border-indigo-400 border-dashed' : 'border-slate-200'} rounded-full shadow-sm px-3 py-1.5 cursor-grab active:cursor-grabbing transition-all hover:border-indigo-300`}
+                      className={`flex items-center bg-white border ${
+                        draggedChildId === child.id 
+                          ? 'border-indigo-200 opacity-40' 
+                          : dragOverChildId === child.id 
+                            ? 'border-indigo-500 border-dashed border-2 bg-indigo-50 scale-105' 
+                            : 'border-slate-200'
+                      } rounded-full shadow-sm px-3 py-1.5 cursor-grab active:cursor-grabbing transition-all hover:border-indigo-300`}
                     >
                       <GripHorizontal className="w-3.5 h-3.5 text-slate-400 mr-2" />
                       <span className="text-xs font-semibold text-slate-700 max-w-[100px] truncate">{child.data.label as string}</span>
