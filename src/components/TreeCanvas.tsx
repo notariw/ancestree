@@ -682,38 +682,9 @@ export default function TreeCanvas() {
                     <Users className="w-12 h-12 text-slate-400" />
                   </div>
                 )}
-              
-            </div>
-
-            {profileChildren.length > 0 && !isInlineEditing && (
-              <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in duration-500 delay-500">
-                <p className="text-xs font-medium text-slate-500 mb-2">Urutan Anak (Kiri ke Kanan):</p>
-                <div className="flex flex-wrap gap-2">
-                  {profileChildren.map((child, idx) => (
-                    <div key={child.id} className="flex items-center bg-white border border-slate-200 rounded-full shadow-sm px-1 py-1">
-                      <button 
-                        onClick={() => handleMoveChild(child.id, -1)}
-                        disabled={idx === 0 || role === 'guest'}
-                        className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30 transition-colors rounded-full hover:bg-slate-50"
-                      >
-                        <ChevronLeft className="w-3 h-3" />
-                      </button>
-                      <span className="text-xs font-semibold text-slate-700 px-2 max-w-[80px] truncate">{child.data.label as string}</span>
-                      <button 
-                        onClick={() => handleMoveChild(child.id, 1)}
-                        disabled={idx === profileChildren.length - 1 || role === 'guest'}
-                        className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30 transition-colors rounded-full hover:bg-slate-50"
-                      >
-                        <ChevronRight className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
               </div>
-            )}
-            
-            {isInlineEditing ? (
-
+              
+              {isInlineEditing ? (
                 <input 
                   type="text" 
                   value={inlineEditName} 
@@ -778,6 +749,33 @@ export default function TreeCanvas() {
                 </div>
               </div>
             </div>
+            
+            {profileChildren.length > 0 && !isInlineEditing && (
+              <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-in fade-in duration-500 delay-500">
+                <p className="text-xs font-medium text-slate-500 mb-2">Urutan Anak (Kiri ke Kanan):</p>
+                <div className="flex flex-wrap gap-2">
+                  {profileChildren.map((child, idx) => (
+                    <div key={child.id} className="flex items-center bg-white border border-slate-200 rounded-full shadow-sm px-1 py-1">
+                      <button 
+                        onClick={() => handleMoveChild(child.id, -1)}
+                        disabled={idx === 0 || role === 'guest'}
+                        className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30 transition-colors rounded-full hover:bg-slate-50"
+                      >
+                        <ChevronLeft className="w-3 h-3" />
+                      </button>
+                      <span className="text-xs font-semibold text-slate-700 px-2 max-w-[80px] truncate">{child.data.label as string}</span>
+                      <button 
+                        onClick={() => handleMoveChild(child.id, 1)}
+                        disabled={idx === profileChildren.length - 1 || role === 'guest'}
+                        className="p-1 text-slate-400 hover:text-indigo-600 disabled:opacity-30 transition-colors rounded-full hover:bg-slate-50"
+                      >
+                        <ChevronRight className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             
             {isInlineEditing ? (
               <div className="flex gap-3 mt-6">
