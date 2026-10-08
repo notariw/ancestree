@@ -780,7 +780,7 @@ export default function TreeCanvas() {
                 <p className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
                   <Users className="w-4 h-4 text-indigo-500" /> Atur Urutan Anak
                 </p>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-2 overflow-x-hidden">
                   {profileChildren.map((child, idx) => (
                     <div key={child.id} className="flex items-center justify-between bg-slate-50 border border-slate-100 rounded-xl p-3 hover:bg-slate-100 transition-colors">
                       <span className="text-sm font-medium text-slate-700 px-2 truncate flex-1">{child.data.label as string}</span>
