@@ -7,6 +7,14 @@ export default function CustomNode({ id, data }: { id: string, data: { label: st
 
   const hasAvatar = data.avatarUrl && !imgError;
 
+  const name = data.label || '';
+  const longestWord = name.split(/\s+/).reduce((m, w) => Math.max(m, w.length), 0);
+  const len = name.length;
+  const sizeByLen = len <= 12 ? 24 : len <= 20 ? 18 : len <= 30 ? 15 : len <= 45 ? 12 : 10;
+  // 124px usable width; avg char width ≈ 0.58em
+  const sizeByWord = Math.floor(124 / (Math.max(longestWord, 1) * 0.58));
+  const fontSize = Math.max(9, Math.min(sizeByLen, sizeByWord));
+
   return (
     <>
       <div className="relative flex flex-col items-center justify-start gap-2 px-2 py-3 bg-white/80 backdrop-blur-md border border-slate-200/60 rounded-2xl shadow-xl w-[140px] h-[220px] text-slate-800 overflow-hidden group hover:border-indigo-400/50 hover:bg-slate-50/80 transition-all duration-300">
@@ -31,7 +39,7 @@ export default function CustomNode({ id, data }: { id: string, data: { label: st
         </div>
 
         <div className="flex flex-col items-center justify-center overflow-hidden w-full h-full text-center px-1">
-          <span className="font-semibold text-2xl line-clamp-2 break-words w-full text-slate-800 leading-tight tracking-tight" title={data.label}>{data.label}</span>
+          <span className="font-semibold break-words w-full text-slate-800 leading-tight tracking-tight" style={{ fontSize: `${fontSize}px` }} title={data.label}>{data.label}</span>
         </div>
 
         <Handle
